@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServeEarn — Service Hours That Give Back</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#16223B;
+    --ink-soft:#2A3B5C;
+    --paper:#FAFAF7;
+    --paper-dim:#F1EFE8;
+    --gold:#E2A33D;
+    --gold-deep:#B87F22;
+    --teal:#1C8C8C;
+    --teal-bg:#E4F3F1;
+    --coral:#E4634A;
+    --coral-bg:#FCEAE5;
+    --violet:#7C5CBF;
+    --violet-bg:#EFE9F9;
+    --green:#2E9E64;
+    --green-bg:#E7F4EC;
+    --red:#C4485A;
+    --red-bg:#FBEAEC;
+    --slate:#5B6472;
+    --line:#DFDCD1;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    color:var(--ink);
+    margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  button{font-family:'Inter',sans-serif;cursor:pointer;}
+  ::selection{background:var(--gold);color:var(--ink);}
+  :focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;}
+
+  /* ---------- Layout shell ---------- */
+  #root{min-height:100vh;display:flex;flex-direction:column;}
+
+  header.topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,250,247,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1120px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;font-size:19px;font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .logo .mark{
+    width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .logo .mark svg{width:100%;height:100%;display:block;}
+  nav.tabs{display:flex;gap:2px;flex-wrap:wrap;}
+  nav.tabs button{
+    background:none;border:none;padding:9px 14px;font-size:14px;font-weight:500;
+    color:var(--slate);border-radius:8px;transition:all .15s ease;
+  }
+  nav.tabs button:hover{background:var(--paper-dim);color:var(--ink);}
+  nav.tabs button.active{background:linear-gradient(120deg, var(--ink) 0%, #223257 100%);color:var(--paper);box-shadow:inset 0 -2px 0 var(--gold);}
+  .session-chip{
+    font-size:13px;color:var(--slate);display:flex;align-items:center;gap:8px;
+  }
+  .session-chip button{
+    background:none;border:1px solid var(--line);border-radius:7px;padding:5px 10px;
+    font-size:12px;color:var(--ink);
+  }
+  .session-chip button:hover{border-color:var(--ink);}
+
+  main{flex:1;max-width:1120px;margin:0 auto;padding:0 24px 80px;width:100%;}
+
+  footer.site{
+    border-top:1px solid var(--line);padding:28px 24px;text-align:center;
+    color:var(--slate);font-size:13px;
+  }
+
+  /* ---------- Hero / Home ---------- */
+  .hero{
+    display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;
+    padding:64px 24px 56px;margin:0 -24px;align-items:center;
+    background:
+      radial-gradient(600px 300px at 90% -10%, rgba(28,140,140,0.12), transparent 60%),
+      radial-gradient(500px 260px at 10% 110%, rgba(226,163,61,0.16), transparent 60%);
+    border-radius:0 0 28px 28px;
+  }
+  @media (max-width:820px){.hero{grid-template-columns:1fr;padding-top:40px;}}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;
+    font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);
+    background:#FBF1DF;border:1px solid #EFDBAA;padding:5px 10px;border-radius:20px;margin-bottom:18px;
+  }
+  .hero h1{font-size:44px;line-height:1.08;letter-spacing:-0.02em;}
+  @media (max-width:820px){.hero h1{font-size:32px;}}
+  .hero p.lead{font-size:17px;line-height:1.6;color:var(--slate);margin-top:18px;max-width:46ch;}
+  .hero-ctas{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;
+    font-size:14px;font-weight:600;border:1px solid transparent;transition:all .15s ease;
+  }
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-primary:hover{background:var(--ink-soft);}
+  .btn-gold{background:var(--gold);color:var(--ink);}
+  .btn-gold:hover{background:var(--gold-deep);color:#fff;}
+  .btn-outline{background:transparent;border-color:var(--line);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--ink);}
+  .btn-sm{padding:7px 12px;font-size:13px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  /* ledger receipt signature element */
+  .ledger{
+    background:#fff;border:1px solid var(--line);border-radius:4px;
+    box-shadow:0 18px 40px -20px rgba(22,34,59,0.35);
+    padding:22px 20px 20px;position:relative;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .ledger::before{
+    content:"";position:absolute;top:-8px;left:0;right:0;height:16px;
+    background:
+      radial-gradient(circle at 8px 8px, transparent 7px, #fff 7.5px) top left/16px 16px repeat-x;
+  }
+  .ledger-head{
+    text-align:center;border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:12px;
+  }
+  .ledger-head .t1{font-size:11px;letter-spacing:.1em;color:var(--slate);text-transform:uppercase;}
+  .ledger-head .t2{font-size:15px;font-weight:600;margin-top:4px;}
+  .ledger-row{
+    display:flex;justify-content:space-between;font-size:13px;padding:7px 0;
+    border-bottom:1px dotted #EAE7DC;opacity:0;transform:translateY(4px);
+    animation:rowIn .5s ease forwards;
+  }
+  .ledger-row:nth-child(1){animation-delay:.05s;}
+  .ledger-row:nth-child(2){animation-delay:.15s;}
+  .ledger-row:nth-child(3){animation-delay:.25s;}
+  .ledger-row:nth-child(4){animation-delay:.35s;}
+  .ledger-row .qty{color:var(--gold-deep);font-weight:600;}
+  @keyframes rowIn{to{opacity:1;transform:translateY(0);}}
+  .ledger-total{
+    display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;
+    border-top:1px solid var(--ink);font-size:13px;font-weight:600;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ledger-row{animation:none;opacity:1;transform:none;}
+  }
+
+  /* ---------- Generic sections ---------- */
+  section.block{padding:44px 0;border-top:1px solid var(--line);}
+  section.block:first-child{border-top:none;}
+  .section-head{margin-bottom:26px;}
+  .section-head .k{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--gold-deep);display:block;margin-bottom:6px;
+  }
+  .section-head h2{font-size:26px;letter-spacing:-0.01em;}
+  .section-head p{color:var(--slate);margin-top:8px;max-width:60ch;line-height:1.6;font-size:15px;}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:820px){.grid3{grid-template-columns:1fr;}}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:820px){.grid2{grid-template-columns:1fr;}}
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:var(--radius);padding:20px;
+  }
+  .card.c-teal{border-top-color:var(--teal);}
+  .card.c-coral{border-top-color:var(--coral);}
+  .card.c-violet{border-top-color:var(--violet);}
+  .card h3{font-size:16px;margin-bottom:8px;}
+  .card p{color:var(--slate);font-size:14px;line-height:1.55;margin:0;}
+  .card .num{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold-deep);
+    display:block;margin-bottom:10px;
+  }
+  .card.c-teal .num{color:var(--teal);}
+  .card.c-coral .num{color:var(--coral);}
+  .card.c-violet .num{color:var(--violet);}
+
+  .flow{
+    display:flex;align-items:stretch;gap:0;border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;background:#fff;
+  }
+  @media (max-width:760px){.flow{flex-direction:column;}}
+  .flow>div{flex:1;padding:22px;}
+  .flow>div+div{border-left:1px solid var(--line);}
+  @media (max-width:760px){.flow>div+div{border-left:none;border-top:1px solid var(--line);}}
+  .flow h4{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--slate);margin-bottom:8px;}
+  .flow .big{font-size:22px;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:6px;}
+  .flow p{color:var(--slate);font-size:13.5px;line-height:1.55;margin:0;}
+  .flow .arrow{
+    display:flex;align-items:center;justify-content:center;padding:0 4px;color:var(--gold-deep);
+    font-size:20px;flex:0;
+  }
+  @media (max-width:760px){.flow .arrow{padding:6px 0;transform:rotate(90deg);}}
+
+  .stat-strip{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#fff;margin-bottom:8px;}
+  .stat-strip>div{flex:1;padding:18px 20px;text-align:center;}
+  .stat-strip>div+div{border-left:1px solid var(--line);}
+  .stat-strip .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--ink);}
+  .stat-strip>div:nth-child(1) .v{color:var(--teal);}
+  .stat-strip>div:nth-child(2) .v{color:var(--coral);}
+  .stat-strip>div:nth-child(3) .v{color:var(--gold-deep);}
+  .stat-strip .l{font-size:12px;color:var(--slate);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+  @media (max-width:600px){.stat-strip{flex-wrap:wrap;}.stat-strip>div{flex:1 1 50%;}.stat-strip>div:nth-child(2){border-left:1px solid var(--line);}}
+
+  /* ---------- Forms ---------- */
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;max-width:460px;}
+  .panel.wide{max-width:none;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);}
+  .field .hint{font-size:12px;color:var(--slate);margin-top:5px;line-height:1.4;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-size:14px;
+    font-family:'Inter',sans-serif;background:#fff;color:var(--ink);
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink);}
+  .field textarea{resize:vertical;min-height:64px;}
+  .checkfield{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--slate);margin-bottom:14px;line-height:1.5;}
+  .checkfield input{margin-top:3px;}
+  .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:520px){.form-row2{grid-template-columns:1fr;}}
+
+  .notice{
+    font-size:12.5px;line-height:1.55;background:var(--paper-dim);border:1px solid var(--line);
+    border-radius:8px;padding:11px 13px;color:var(--slate);margin-bottom:16px;
+  }
+  .notice strong{color:var(--ink);}
+
+  .msg{border-radius:8px;padding:10px 13px;font-size:13.5px;margin-bottom:14px;}
+  .msg.err{background:var(--red-bg);color:#8A2F3D;border:1px solid #F1C4CB;}
+  .msg.ok{background:var(--green-bg);color:#1F6E45;border:1px solid #BFE5CE;}
+
+  .tabswitch{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid var(--line);}
+  .tabswitch button{
+    background:none;border:none;padding:9px 4px;margin-right:18px;font-size:14px;font-weight:600;
+    color:var(--slate);border-bottom:2px solid transparent;margin-bottom:-1px;
+  }
+  .tabswitch button.active{color:var(--ink);border-bottom-color:var(--gold);}
+
+  /* ---------- Portal / dashboard ---------- */
+  .dash-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+  .dash-head h2{font-size:24px;}
+  .dash-head .sub{color:var(--slate);font-size:14px;margin-top:4px;}
+
+  table.data{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  table.data th{
+    text-align:left;background:var(--paper-dim);padding:10px 12px;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--slate);font-weight:600;
+    border-bottom:1px solid var(--line);
+  }
+  table.data td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:top;}
+  table.data tr:last-child td{border-bottom:none;}
+  .badge{
+    display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .badge.pending{background:#FBF1DF;color:var(--gold-deep);}
+  .badge.verified{background:var(--green-bg);color:#1F6E45;}
+  .badge.rejected{background:var(--red-bg);color:#8A2F3D;}
+  .badge.fulfilled{background:#E4EAF6;color:#2A4A8C;}
+
+  .empty{
+    text-align:center;padding:36px 20px;color:var(--slate);font-size:14px;border:1px dashed var(--line);
+    border-radius:var(--radius);background:#fff;
+  }
+
+  .reward-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .reward-card .co{font-size:12px;color:var(--slate);text-transform:uppercase;letter-spacing:.04em;font-family:'IBM Plex Mono',monospace;}
+  .reward-card h3{font-size:16px;}
+  .reward-card p{font-size:13.5px;color:var(--slate);margin:0;line-height:1.5;}
+  .reward-card .cost{
+    margin-top:auto;display:flex;justify-content:space-between;align-items:center;
+    padding-top:10px;border-top:1px solid var(--line);
+  }
+  .reward-card .cost .h{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--gold-deep);}
+
+  .progress{height:8px;background:var(--paper-dim);border-radius:6px;overflow:hidden;margin-top:8px;}
+  .progress > div{height:100%;background:var(--gold);}
+
+  .loading{padding:40px;text-align:center;color:var(--slate);font-size:14px;}
+
+  .kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;min-width:130px;}
+  .kpi .v{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;}
+  .kpi .l{font-size:11.5px;color:var(--slate);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
+  .sponsor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media (max-width:760px){.sponsor-grid{grid-template-columns:repeat(2,1fr);}}
+  .sponsor-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    padding:22px 14px;text-align:center;text-decoration:none;color:var(--ink);
+    transition:all .15s ease;
+  }
+  .sponsor-card:hover{border-color:var(--teal);box-shadow:0 10px 24px -16px rgba(28,140,140,0.5);transform:translateY(-2px);}
+  .sponsor-card img{max-width:100%;max-height:44px;object-fit:contain;}
+  .sponsor-card .fallback{
+    width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold) 0%, var(--coral) 100%);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;
+  }
+  .sponsor-card .name{font-size:13px;font-weight:600;}
+  .sponsor-card .visit{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;}
+
+  .founder{
+    display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:flex-start;
+    background:linear-gradient(135deg, var(--violet-bg) 0%, var(--teal-bg) 100%);
+    border:1px solid var(--line);border-radius:var(--radius);padding:26px;
+  }
+  @media (max-width:600px){.founder{grid-template-columns:1fr;}}
+  .founder .avatar{
+    width:64px;height:64px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg, var(--violet) 0%, var(--teal) 100%);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;
+  }
+  .founder h3{font-size:17px;margin-bottom:8px;}
+  .founder p{color:var(--ink-soft);font-size:14.5px;line-height:1.65;margin:0 0 10px;}
+  .founder .role{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--violet);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* =========================================================================
+   ServeEarn — client-side app using window.storage (shared, key/value)
+   ========================================================================= */
+
+const STATE = {
+  view: 'home',
+  session: null, // {type:'student'|'company'|'admin', id, name}
+  msg: null,
+};
+
+const ADMIN_PASSCODE = "serveearn-admin"; // shared admin passcode (see admin login notice)
+
+function genId(prefix){
+  return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+function esc(s){
+  if(s===undefined||s===null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function logoMarkSVG(size){
+  return `<span class="mark" style="width:${size}px;height:${size}px;">
+    <img src="icon-mark.png" alt="ServeEarn" style="width:100%;height:100%;object-fit:contain;display:block;">
+  </span>`;
+}
+/* Full logo lockup (icon + wordmark + tagline) — used in the footer */
+function logoFullSVG(height){
+  return `<img src="logo-full.png" alt="ServeEarn — Creating Better Community" style="height:${height}px;width:auto;display:block;">`;
+}
+function fmtDate(iso){
+  try{ const d = new Date(iso); return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
+  catch(e){ return iso; }
+}
+
+/* ---------------- storage helpers ----------------
+   Backed by a Netlify serverless function (/.netlify/functions/api),
+   which talks to Supabase using a server-side key. The browser never
+   sees any database credentials. */
+async function apiCall(body){
+  const res = await fetch('/.netlify/functions/api', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(!res.ok) throw new Error('API error '+res.status);
+  return res.json();
+}
+async function storeSet(key, value){
+  try{
+    const res = await apiCall({action:'set', key, value});
+    return !!res.ok;
+  }catch(e){ console.error('storage set failed', key, e); return false; }
+}
+async function storeGet(key){
+  try{
+    const res = await apiCall({action:'get', key});
+    return res.value !== undefined ? res.value : null;
+  }catch(e){ return null; }
+}
+async function storeListPrefix(prefix){
+  try{
+    const res = await apiCall({action:'list', prefix});
+    return res.keys || [];
+  }catch(e){ return []; }
+}
+async function storeGetAll(prefix){
+  const keys = await storeListPrefix(prefix);
+  const out = [];
+  for(const k of keys){
+    const v = await storeGet(k);
+    if(v) out.push(v);
+  }
+  return out;
+}
+
+/* ---------------- domain helpers ---------------- */
+async function findStudentByEmail(email){
+  const all = await storeGetAll('student:');
+  return all.find(s => s.email.toLowerCase() === email.toLowerCase()) || null;
+}
+async function findCompanyByEmail(email){
+  const all = await storeGetAll('company:');
+  return all.find(c => c.email.toLowerCase() === email.toLowerCase()) || null;
+}
+async function getStudentHourLogs(studentId){
+  const all = await storeGetAll('hourlog:');
+  return all.filter(h => h.studentId === studentId).sort((a,b)=> new Date(b.date)-new Date(a.date));
+}
+async function getVerifiedHours(studentId){
+  const logs = await getStudentHourLogs(studentId);
+  return logs.filter(l=>l.status==='verified').reduce((sum,l)=>sum+Number(l.hours||0),0);
+}
+async function getRedemptionsForStudent(studentId){
+  const all = await storeGetAll('redemption:');
+  return all.filter(r=>r.studentId===studentId);
+}
+
+/* ============================= RENDER ROOT ============================= */
+function render(){
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="logo">${logoMarkSVG(30)} ServeEarn</div>
+        <nav class="tabs">
+          ${navButton('home','Home')}
+          ${navButton('mechanics','Rules of Service & Rewards')}
+          ${navButton('students','Students')}
+          ${navButton('companies','Companies')}
+          ${navButton('admin','Admin')}
+        </nav>
+        ${sessionChip()}
+      </div>
+    </header>
+    <main id="main"></main>
+    <footer class="site">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        ${logoFullSVG(40)}
+        <span>a Houston-born community service &amp; rewards program, growing across local high schools</span>
+      </div>
+    </footer>
+  `;
+  document.querySelectorAll('nav.tabs button').forEach(b=>{
+    b.addEventListener('click', ()=>{ STATE.view = b.dataset.view; STATE.msg=null; renderMain(); });
+  });
+  renderMain();
+}
+
+function navButton(view,label){
+  return `<button data-view="${view}" class="${STATE.view===view?'active':''}">${label}</button>`;
+}
+
+function sessionChip(){
+  if(!STATE.session) return '';
+  const label = STATE.session.type==='admin' ? 'Admin' : STATE.session.name;
+  return `<div class="session-chip"><span>Signed in — ${esc(label)}</span><button id="signOutBtn">Sign out</button></div>`;
+}
+
+function attachSignOut(){
+  const btn = document.getElementById('signOutBtn');
+  if(btn) btn.addEventListener('click', ()=>{ STATE.session=null; STATE.view='home'; render(); });
+}
+
+async function renderMain(){
+  const main = document.getElementById('main');
+  attachSignOut();
+  main.innerHTML = '<div class="loading">Loading…</div>';
+  let html = '';
+  switch(STATE.view){
+    case 'home': html = await viewHome(); break;
+    case 'mechanics': html = viewMechanics(); break;
+    case 'students': html = await viewStudents(); break;
+    case 'companies': html = await viewCompanies(); break;
+    case 'admin': html = await viewAdmin(); break;
+    default: html = await viewHome();
+  }
+  main.innerHTML = html;
+  bindViewEvents();
+}
+
+/* ============================= HOME ============================= */
+async function viewHome(){
+  const students = await storeGetAll('student:');
+  const companies = await storeGetAll('company:');
+  const logs = await storeGetAll('hourlog:');
+  const verifiedHours = logs.filter(l=>l.status==='verified').reduce((s,l)=>s+Number(l.hours||0),0);
+
+  return `
+    <section class="hero">
+      <div>
+        <span class="eyebrow">● Houston, TX · Growing across local high schools</span>
+        <h1>Service hours that turn into something real.</h1>
+        <p class="lead">Students log verified community service hours. Local companies turn those hours into real rewards — a free dental cleaning, a haircut, a meal. ServeEarn is the ledger in between.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary" data-goto="students">I'm a student</button>
+          <button class="btn btn-outline" data-goto="companies">I'm a company</button>
+        </div>
+      </div>
+      <div class="ledger">
+        <div class="ledger-head">
+          <div class="t1">Hour Exchange</div>
+          <div class="t2">Sample conversions</div>
+        </div>
+        <div class="ledger-row"><span>Dental cleaning</span><span class="qty">10 hrs</span></div>
+        <div class="ledger-row"><span>Haircut &amp; style</span><span class="qty">6 hrs</span></div>
+        <div class="ledger-row"><span>Tutoring session</span><span class="qty">4 hrs</span></div>
+        <div class="ledger-row"><span>Restaurant gift card</span><span class="qty">8 hrs</span></div>
+        <div class="ledger-total"><span>Verified by</span><span>ServeEarn admin</span></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="stat-strip">
+        <div><div class="v">${students.length}</div><div class="l">Students enrolled</div></div>
+        <div><div class="v">${companies.length}</div><div class="l">Partner companies</div></div>
+        <div><div class="v">${verifiedHours}</div><div class="l">Hours verified</div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">The idea behind it</span>
+        <h2>Meet Lara, the student who started ServeEarn</h2>
+      </div>
+      <div class="founder">
+        <div class="avatar">L</div>
+        <div>
+          <span class="role">Founder, ServeEarn</span>
+          <h3>Building a community that grows by supporting each other</h3>
+          <p>Lara started ServeEarn with a simple belief: a community gets stronger when the people in it look out for one another — students giving their time, and local businesses giving something back in return. Not a transaction, but a relationship, built one verified hour at a time.</p>
+          <p>ServeEarn began as one student's project to connect Houston-area high schoolers with local companies that wanted to invest in them. The goal isn't just logging hours — it's making service visible, valued, and worth showing up for, while building real ties between students and the businesses that make up their community.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Why it works</span>
+        <h2>Real service. Real accountability. Real rewards.</h2>
+      </div>
+      <div class="grid3">
+        <div class="card">
+          <span class="num">01</span>
+          <h3>Every hour is logged</h3>
+          <p>Students record what they did, where, and when — building an honest record of their service, not just a number.</p>
+        </div>
+        <div class="card c-teal">
+          <span class="num">02</span>
+          <h3>Every hour is checked</h3>
+          <p>A ServeEarn admin reviews each submission before it counts, so companies can trust the hours behind every reward.</p>
+        </div>
+        <div class="card c-coral">
+          <span class="num">03</span>
+          <h3>Every hour can be redeemed</h3>
+          <p>Companies set their own hour-to-reward exchange rate — from a free appointment to a gift card — and students redeem what they've earned.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Our sponsors</span>
+        <h2>Companies backing our students</h2>
+        <p>Every logo below links directly to a partner's own website — their generosity is real advertising, not just a good deed.</p>
+      </div>
+      ${sponsorGridHTML(companies)}
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Get started</span>
+        <h2>Pick your side of the ledger</h2>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Students</h3>
+          <p>Create an account, log your service hours, and track your progress toward rewards.</p>
+          <div style="margin-top:14px;"><button class="btn btn-gold btn-sm" data-goto="students">Go to student portal →</button></div>
+        </div>
+        <div class="card">
+          <h3>Companies</h3>
+          <p>Post a reward, set the hours it costs, and give back to students doing real work in Houston — with your logo and link featured on our homepage.</p>
+          <div style="margin-top:14px;"><button class="btn btn-outline btn-sm" data-goto="companies">Go to company portal →</button></div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function sponsorGridHTML(companies){
+  if(!companies || companies.length===0){
+    return `<div class="empty">No partner companies yet — be the first to sponsor ServeEarn.</div>`;
+  }
+  return `<div class="sponsor-grid">
+    ${companies.map(c=>{
+      const initials = esc((c.name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase());
+      const href = c.website ? esc(c.website) : null;
+      const inner = `
+        ${c.logoUrl ? `<img src="${esc(c.logoUrl)}" alt="${esc(c.name)} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="fallback" style="display:none;">${initials}</div>`
+          : `<div class="fallback">${initials}</div>`}
+        <div class="name">${esc(c.name)}</div>
+        ${href ? `<div class="visit">Visit site →</div>` : ''}
+      `;
+      return href
+        ? `<a class="sponsor-card" href="${href}" target="_blank" rel="noopener noreferrer">${inner}</a>`
+        : `<div class="sponsor-card" style="cursor:default;">${inner}</div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ============================= MECHANICS ============================= */
+function viewMechanics(){
+  return `
+    <section class="block" style="border-top:none;padding-top:56px;">
+      <div class="section-head">
+        <span class="k">Rules of Service & Rewards</span>
+        <h2>From service hour to reward, step by step</h2>
+        <p>ServeEarn connects two groups: students doing community service, and companies offering rewards for it. An admin sits in the middle, verifying every hour before it can be redeemed.</p>
+      </div>
+      <div class="flow">
+        <div>
+          <h4>Step 1</h4>
+          <div class="big">Log hours</div>
+          <p>A student completes community service — on their own or through an approved organization — and logs it in their ServeEarn account: hours, date, organization, and a short description.</p>
+        </div>
+        <div class="arrow">→</div>
+        <div>
+          <h4>Step 2</h4>
+          <div class="big">Admin verifies</div>
+          <p>A ServeEarn admin reviews each submission. Hours are approved, sent back for more detail, or rejected. Only verified hours count toward rewards.</p>
+        </div>
+        <div class="arrow">→</div>
+        <div>
+          <h4>Step 3</h4>
+          <div class="big">Redeem a reward</div>
+          <p>Once a student has enough verified hours, they can redeem a reward posted by a partner company — like 10 hours for a free dental cleaning.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Rules for students</span>
+        <h2>What counts as service</h2>
+        <p>Any unpaid, organized community service can be logged — food banks, tutoring, park cleanups, hospital volunteering, animal shelters, and approved service trips. Hours should be specific and honest: an admin may follow up for details before approving. Submitting false or exaggerated hours is a violation of the Volunteer Service Participation Agreement and can result in account suspension.</p>
+      </div>
+      <div class="grid3">
+        <div class="card"><span class="num">Log</span><h3>Add the details</h3><p>Organization name, date, number of hours, and what you did.</p></div>
+        <div class="card c-teal"><span class="num">Wait</span><h3>Admin review</h3><p>Most submissions are reviewed within a few days.</p></div>
+        <div class="card c-coral"><span class="num">Earn</span><h3>Hours accumulate</h3><p>Verified hours build toward whichever reward you're saving for.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Rules for companies</span>
+        <h2>Setting your exchange rate</h2>
+        <p>You decide what you're offering and how many verified hours it costs — a free service, a product, a gift card, or an experience. You commit to honoring rewards for any student who's met the requirement, and you can pause or update a listing any time.</p>
+      </div>
+      <div class="grid3">
+        <div class="card"><span class="num">Post</span><h3>Create a reward</h3><p>Title, description, and the number of hours it takes to earn.</p></div>
+        <div class="card c-teal"><span class="num">Match</span><h3>Students redeem</h3><p>Students with enough verified hours can request your reward.</p></div>
+        <div class="card c-violet"><span class="num">Fulfill</span><h3>You deliver it</h3><p>Mark redemptions fulfilled once you've delivered the reward in person.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Agreements & rewards eligibility</span>
+        <h2>Everyone signs before they participate</h2>
+        <p>Students and a parent/guardian agree to the Volunteer Service Participation Agreement & Liability Waiver at signup. Companies agree to the Company Partner Agreement at signup. Both are electronically signed with a typed name and timestamp, and full copies are available from the ServeEarn admin on request.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="k">Trust &amp; privacy</span>
+        <h2>What we ask for — and what we don't</h2>
+        <p>ServeEarn collects only what's needed to run the program: a student's name, school, grade, and email, and (recommended) a parent or guardian's email for awareness and consent. This early version uses simple email + PIN accounts rather than a full identity system — it's built for a small pilot, not for storing sensitive personal data at scale.</p>
+      </div>
+    </section>
+  `;
+}
+
+/* ============================= STUDENTS ============================= */
+async function viewStudents(){
+  if(STATE.session && STATE.session.type==='student'){
+    return await studentDashboard();
+  }
+  return `
+    <section class="block" style="border-top:none;padding-top:48px;">
+      <div class="tabswitch">
+        <button class="${STATE.studentTab!=='login'?'active':''}" data-stab="signup">Create account</button>
+        <button class="${STATE.studentTab==='login'?'active':''}" data-stab="login">Log in</button>
+      </div>
+      ${msgBlock()}
+      ${STATE.studentTab==='login' ? studentLoginForm() : studentSignupForm()}
+    </section>
+  `;
+}
+
+function studentSignupForm(){
+  return `
+  <div class="panel">
+    <div class="notice"><strong>About your data:</strong> we only collect what's needed to run the program. This is a pilot-scale login (email + a PIN you choose) — please don't reuse a password you use elsewhere.</div>
+    <form id="studentSignupForm">
+      <div class="field"><label>Full name</label><input required name="name" placeholder="Jordan Lee"></div>
+      <div class="form-row2">
+        <div class="field"><label>School</label><input required name="school" placeholder="e.g. Lincoln High School"></div>
+        <div class="field"><label>Grade</label><input required name="grade" placeholder="10th"></div>
+      </div>
+      <div class="field"><label>Your email</label><input required type="email" name="email" placeholder="you@school.edu"></div>
+      <div class="field"><label>Parent/guardian email <span style="color:var(--slate);font-weight:400;">(recommended)</span></label><input type="email" name="parentEmail" placeholder="parent@example.com"></div>
+      <div class="field"><label>Choose a PIN (4+ characters)</label><input required minlength="4" name="pin" type="password" placeholder="Not a real password — keep it simple"></div>
+
+      <div class="notice"><strong>Volunteer Service Participation Agreement & Liability Waiver:</strong> by signing below, the student and a parent/guardian confirm they've reviewed the full agreement (provided by the ServeEarn admin), understand community service carries some risk, and agree to release ServeEarn from liability for that risk to the extent allowed by law. Full text available on request.</div>
+      <div class="checkfield"><input required type="checkbox" name="consent"><span>A parent or guardian is aware I'm signing up for ServeEarn, has reviewed the Agreement & Waiver with me, and consents to my participation.</span></div>
+      <div class="field"><label>Student electronic signature <span style="color:var(--slate);font-weight:400;">(type full legal name)</span></label><input required name="studentSignature" placeholder="Type your full name"></div>
+      <div class="field"><label>Parent/guardian electronic signature <span style="color:var(--slate);font-weight:400;">(type full legal name)</span></label><input required name="parentSignature" placeholder="Type parent/guardian full name"></div>
+
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;">Create account & sign agreement</button>
+    </form>
+  </div>`;
+}
+
+function studentLoginForm(){
+  return `
+  <div class="panel">
+    <form id="studentLoginForm">
+      <div class="field"><label>Email</label><input required type="email" name="email"></div>
+      <div class="field"><label>PIN</label><input required type="password" name="pin"></div>
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;">Log in</button>
+    </form>
+  </div>`;
+}
+
+async function studentDashboard(){
+  const s = STATE.session;
+  const logs = await getStudentHourLogs(s.id);
+  const verified = logs.filter(l=>l.status==='verified').reduce((sum,l)=>sum+Number(l.hours||0),0);
+  const pending = logs.filter(l=>l.status==='pending').length;
+  const rewards = await storeGetAll('reward:');
+  const activeRewards = rewards.filter(r=>r.active!==false);
+  const redemptions = await getRedemptionsForStudent(s.id);
+
+  return `
+    <section class="block" style="border-top:none;padding-top:40px;">
+      <div class="dash-head">
+        <div><h2>Hi, ${esc(s.name)}</h2><div class="sub">${esc(s.school||'')} ${s.grade?('· '+esc(s.grade)):''}</div></div>
+      </div>
+      ${msgBlock()}
+      <div class="kpi-row">
+        <div class="kpi"><div class="v">${verified}</div><div class="l">Verified hours</div></div>
+        <div class="kpi"><div class="v">${pending}</div><div class="l">Pending review</div></div>
+        <div class="kpi"><div class="v">${redemptions.length}</div><div class="l">Rewards redeemed</div></div>
+      </div>
+
+      <div class="section-head" style="margin-top:8px;"><h2 style="font-size:19px;">Log new service hours</h2></div>
+      <div class="panel wide" style="margin-bottom:36px;">
+        <form id="hourLogForm">
+          <div class="form-row2">
+            <div class="field"><label>Organization</label><input required name="org" placeholder="e.g. Houston Food Bank"></div>
+            <div class="field"><label>Date of service</label><input required type="date" name="date"></div>
+          </div>
+          <div class="field"><label>Hours</label><input required type="number" min="0.5" step="0.5" name="hours" placeholder="e.g. 3"></div>
+          <div class="field"><label>What did you do?</label><textarea required name="description" placeholder="Briefly describe the service"></textarea></div>
+          <button class="btn btn-primary" type="submit">Submit for review</button>
+        </form>
+      </div>
+
+      <div class="section-head"><h2 style="font-size:19px;">Your hour history</h2></div>
+      ${logs.length===0 ? `<div class="empty">No hours logged yet — add your first one above.</div>` : `
+      <table class="data" style="margin-bottom:36px;">
+        <thead><tr><th>Date</th><th>Organization</th><th>Hours</th><th>Description</th><th>Status</th></tr></thead>
+        <tbody>
+          ${logs.map(l=>`
+            <tr>
+              <td>${esc(fmtDate(l.date))}</td>
+              <td>${esc(l.org)}</td>
+              <td class="mono">${esc(l.hours)}</td>
+              <td>${esc(l.description)}</td>
+              <td><span class="badge ${l.status}">${l.status}</span></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`}
+
+      <div class="section-head"><h2 style="font-size:19px;">Rewards you can redeem</h2><p>Your balance: <strong class="mono">${verified} verified hours</strong></p></div>
+      ${activeRewards.length===0 ? `<div class="empty">No rewards posted yet — check back soon.</div>` : `
+      <div class="grid3">
+        ${activeRewards.map(r=>{
+          const affordable = verified >= r.hoursRequired;
+          const already = redemptions.find(rd=>rd.rewardId===r.id && rd.status!=='rejected');
+          return `
+          <div class="reward-card">
+            <span class="co">${esc(r.companyName)}</span>
+            <h3>${esc(r.title)}</h3>
+            <p>${esc(r.description)}</p>
+            <div class="progress"><div style="width:${Math.min(100, verified/r.hoursRequired*100)}%"></div></div>
+            <div class="cost">
+              <span class="h">${r.hoursRequired} hrs</span>
+              ${already
+                ? `<span class="badge ${already.status}">${already.status}</span>`
+                : `<button class="btn btn-gold btn-sm" data-redeem="${r.id}" ${affordable?'':'disabled'}>${affordable?'Redeem':'Not enough hours'}</button>`
+              }
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`}
+    </section>
+  `;
+}
+
+/* ============================= COMPANIES ============================= */
+async function viewCompanies(){
+  if(STATE.session && STATE.session.type==='company'){
+    return await companyDashboard();
+  }
+  return `
+    <section class="block" style="border-top:none;padding-top:48px;">
+      <div class="tabswitch">
+        <button class="${STATE.companyTab!=='login'?'active':''}" data-ctab="signup">Create account</button>
+        <button class="${STATE.companyTab==='login'?'active':''}" data-ctab="login">Log in</button>
+      </div>
+      ${msgBlock()}
+      ${STATE.companyTab==='login' ? companyLoginForm() : companySignupForm()}
+    </section>
+  `;
+}
+
+function companySignupForm(){
+  return `
+  <div class="panel">
+    <div class="notice"><strong>About your data:</strong> this is a pilot-scale login (email + a PIN) meant for a small local program — not a production account system.</div>
+    <form id="companySignupForm">
+      <div class="field"><label>Company name</label><input required name="name" placeholder="e.g. Bayou City Dental"></div>
+      <div class="field"><label>Contact email</label><input required type="email" name="email"></div>
+      <div class="field"><label>Website URL <span style="color:var(--slate);font-weight:400;">(shown as your sponsor link on the homepage)</span></label><input type="url" name="website" placeholder="https://yourcompany.com"></div>
+      <div class="field"><label>Logo image URL <span style="color:var(--slate);font-weight:400;">(optional — link to a hosted image, e.g. from your website)</span></label><input type="url" name="logoUrl" placeholder="https://yourcompany.com/logo.png">
+        <div class="hint">No file upload here — paste a direct link to an image. You can add or change this any time from your dashboard.</div>
+      </div>
+      <div class="field"><label>Choose a PIN (4+ characters)</label><input required minlength="4" name="pin" type="password"></div>
+
+      <div class="notice"><strong>Company Partner Agreement:</strong> by signing below, you confirm you're an authorized representative of this business, you've reviewed the full Company Partner Agreement (provided by the ServeEarn admin), and you agree to honor any reward you post for students who meet its hour requirement.</div>
+      <div class="field"><label>Authorized representative name & title</label><input required name="repTitle" placeholder="e.g. Dana Ruiz, Office Manager"></div>
+      <div class="checkfield"><input required type="checkbox" name="consent"><span>I have read and agree to the ServeEarn Company Partner Agreement on behalf of this business.</span></div>
+      <div class="field"><label>Electronic signature <span style="color:var(--slate);font-weight:400;">(type full legal name)</span></label><input required name="repSignature" placeholder="Type your full name"></div>
+
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;">Create account & sign agreement</button>
+    </form>
+  </div>`;
+}
+function companyLoginForm(){
+  return `
+  <div class="panel">
+    <form id="companyLoginForm">
+      <div class="field"><label>Email</label><input required type="email" name="email"></div>
+      <div class="field"><label>PIN</label><input required type="password" name="pin"></div>
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;">Log in</button>
+    </form>
+  </div>`;
+}
+
+async function companyDashboard(){
+  const c = STATE.session;
+  const company = await storeGet('company:'+c.id);
+  const rewards = (await storeGetAll('reward:')).filter(r=>r.companyId===c.id);
+  const redemptions = (await storeGetAll('redemption:')).filter(r=>rewards.some(rw=>rw.id===r.rewardId));
+
+  return `
+    <section class="block" style="border-top:none;padding-top:40px;">
+      <div class="dash-head"><div><h2>${esc(c.name)}</h2><div class="sub">Company portal</div></div></div>
+      ${msgBlock()}
+
+      <div class="section-head" style="margin-top:8px;"><h2 style="font-size:19px;">Sponsor profile</h2><p>Shown on the ServeEarn homepage, linking out to your site — this is your advertising space.</p></div>
+      <div class="panel wide" style="margin-bottom:36px;">
+        <form id="sponsorProfileForm">
+          <div class="form-row2">
+            <div class="field"><label>Website URL</label><input type="url" name="website" value="${esc(company?.website||'')}" placeholder="https://yourcompany.com"></div>
+            <div class="field"><label>Logo image URL</label><input type="url" name="logoUrl" value="${esc(company?.logoUrl||'')}" placeholder="https://yourcompany.com/logo.png"></div>
+          </div>
+          <button class="btn btn-outline" type="submit">Save sponsor profile</button>
+        </form>
+      </div>
+
+      <div class="section-head" style="margin-top:8px;"><h2 style="font-size:19px;">Post a reward</h2></div>
+      <div class="panel wide" style="margin-bottom:36px;">
+        <form id="rewardForm">
+          <div class="field"><label>Reward title</label><input required name="title" placeholder="e.g. Free dental cleaning"></div>
+          <div class="field"><label>Description</label><textarea required name="description" placeholder="What the student receives, any conditions"></textarea></div>
+          <div class="form-row2">
+            <div class="field"><label>Hours required</label><input required type="number" min="1" step="1" name="hoursRequired" placeholder="e.g. 10"></div>
+            <div class="field"><label>Quantity available</label><input required type="number" min="1" step="1" name="quantity" placeholder="e.g. 5"></div>
+          </div>
+          <button class="btn btn-primary" type="submit">Post reward</button>
+        </form>
+      </div>
+
+      <div class="section-head"><h2 style="font-size:19px;">Your rewards</h2></div>
+      ${rewards.length===0 ? `<div class="empty">You haven't posted any rewards yet.</div>` : `
+      <table class="data" style="margin-bottom:36px;">
+        <thead><tr><th>Reward</th><th>Hours</th><th>Redeemed</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        ${rewards.map(r=>`
+          <tr>
+            <td>${esc(r.title)}</td>
+            <td class="mono">${r.hoursRequired}</td>
+            <td class="mono">${r.redeemedCount||0} / ${r.quantity}</td>
+            <td><span class="badge ${r.active!==false?'verified':'rejected'}">${r.active!==false?'active':'paused'}</span></td>
+            <td><button class="btn btn-outline btn-sm" data-toggle-reward="${r.id}">${r.active!==false?'Pause':'Resume'}</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+
+      <div class="section-head"><h2 style="font-size:19px;">Redemption requests</h2></div>
+      ${redemptions.length===0 ? `<div class="empty">No redemption requests yet.</div>` : `
+      <table class="data">
+        <thead><tr><th>Student</th><th>Reward</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        ${redemptions.map(r=>`
+          <tr>
+            <td>${esc(r.studentName)}</td>
+            <td>${esc(r.rewardTitle)}</td>
+            <td><span class="badge ${r.status}">${r.status}</span></td>
+            <td>${r.status==='pending' ? `<button class="btn btn-gold btn-sm" data-fulfill="${r.id}">Mark fulfilled</button>` : ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+    </section>
+  `;
+}
+
+/* ============================= ADMIN ============================= */
+async function viewAdmin(){
+  if(!(STATE.session && STATE.session.type==='admin')){
+    return `
+      <section class="block" style="border-top:none;padding-top:48px;">
+        <div class="section-head">
+          <span class="k">Admin</span>
+          <h2>Hour verification</h2>
+          <p>This area is for the ServeEarn admin reviewing and approving submitted service hours.</p>
+        </div>
+        ${msgBlock()}
+        <div class="panel">
+          <div class="notice">Pilot-scale access: a single shared passcode gates this area. Swap this for real authentication before opening the program beyond a pilot.</div>
+          <form id="adminLoginForm">
+            <div class="field"><label>Admin passcode</label><input required type="password" name="passcode"></div>
+            <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;">Enter admin view</button>
+          </form>
+        </div>
+      </section>
+    `;
+  }
+
+  const logs = (await storeGetAll('hourlog:')).sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const pending = logs.filter(l=>l.status==='pending');
+  const students = await storeGetAll('student:');
+  const companies = await storeGetAll('company:');
+
+  return `
+    <section class="block" style="border-top:none;padding-top:40px;">
+      <div class="dash-head"><div><h2>Admin</h2><div class="sub">Verify hours &amp; oversee the program</div></div></div>
+      ${msgBlock()}
+      <div class="kpi-row">
+        <div class="kpi"><div class="v">${students.length}</div><div class="l">Students</div></div>
+        <div class="kpi"><div class="v">${companies.length}</div><div class="l">Companies</div></div>
+        <div class="kpi"><div class="v">${pending.length}</div><div class="l">Pending review</div></div>
+      </div>
+
+      <div class="section-head"><h2 style="font-size:19px;">Pending hour submissions</h2></div>
+      ${pending.length===0 ? `<div class="empty">Nothing waiting on review right now.</div>` : `
+      <table class="data" style="margin-bottom:36px;">
+        <thead><tr><th>Student</th><th>Org</th><th>Date</th><th>Hours</th><th>Description</th><th></th></tr></thead>
+        <tbody>
+        ${pending.map(l=>`
+          <tr>
+            <td>${esc(l.studentName)}</td>
+            <td>${esc(l.org)}</td>
+            <td>${esc(fmtDate(l.date))}</td>
+            <td class="mono">${esc(l.hours)}</td>
+            <td>${esc(l.description)}</td>
+            <td style="white-space:nowrap;">
+              <button class="btn btn-primary btn-sm" data-approve="${l.id}">Approve</button>
+              <button class="btn btn-outline btn-sm" data-reject="${l.id}">Reject</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+
+      <div class="section-head"><h2 style="font-size:19px;">All submissions</h2></div>
+      ${logs.length===0 ? `<div class="empty">No submissions yet.</div>` : `
+      <table class="data" style="margin-bottom:36px;">
+        <thead><tr><th>Student</th><th>Org</th><th>Date</th><th>Hours</th><th>Status</th></tr></thead>
+        <tbody>
+        ${logs.map(l=>`
+          <tr>
+            <td>${esc(l.studentName)}</td>
+            <td>${esc(l.org)}</td>
+            <td>${esc(fmtDate(l.date))}</td>
+            <td class="mono">${esc(l.hours)}</td>
+            <td><span class="badge ${l.status}">${l.status}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}
+
+      <div class="section-head"><h2 style="font-size:19px;">Signed agreements</h2><p>Electronic signature log for the Volunteer Waiver and Company Partner Agreement.</p></div>
+      ${await agreementsTable()}
+    </section>
+  `;
+}
+
+async function agreementsTable(){
+  const agreements = await storeGetAll('agreement:');
+  if(agreements.length===0) return `<div class="empty">No agreements signed yet.</div>`;
+  return `
+  <table class="data">
+    <thead><tr><th>Type</th><th>Signed by</th><th>Details</th><th>Signed at</th></tr></thead>
+    <tbody>
+      ${agreements.sort((a,b)=>new Date(b.signedAt)-new Date(a.signedAt)).map(a=>{
+        if(a.type==='volunteer_waiver'){
+          return `<tr><td>Volunteer Waiver</td><td>${esc(a.studentSignature)}</td><td>Parent/guardian: ${esc(a.parentSignature)}</td><td>${esc(fmtDate(a.signedAt))}</td></tr>`;
+        }
+        return `<tr><td>Company Partner Agreement</td><td>${esc(a.repSignature)}</td><td>${esc(a.repTitle||'')}</td><td>${esc(fmtDate(a.signedAt))}</td></tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+/* ============================= EVENTS ============================= */
+function msgBlock(){
+  if(!STATE.msg) return '';
+  return `<div class="msg ${STATE.msg.type}">${esc(STATE.msg.text)}</div>`;
+}
+function setMsg(type,text){ STATE.msg = {type,text}; }
+
+function bindViewEvents(){
+  document.querySelectorAll('[data-goto]').forEach(b=>{
+    b.addEventListener('click', ()=>{ STATE.view=b.dataset.goto; STATE.msg=null; renderMain(); document.querySelectorAll('nav.tabs button').forEach(nb=>nb.classList.toggle('active', nb.dataset.view===STATE.view)); });
+  });
+
+  // student tab switch
+  document.querySelectorAll('[data-stab]').forEach(b=>{
+    b.addEventListener('click', ()=>{ STATE.studentTab=b.dataset.stab; STATE.msg=null; renderMain(); });
+  });
+  document.querySelectorAll('[data-ctab]').forEach(b=>{
+    b.addEventListener('click', ()=>{ STATE.companyTab=b.dataset.ctab; STATE.msg=null; renderMain(); });
+  });
+
+  const studentSignup = document.getElementById('studentSignupForm');
+  if(studentSignup) studentSignup.addEventListener('submit', onStudentSignup);
+  const studentLogin = document.getElementById('studentLoginForm');
+  if(studentLogin) studentLogin.addEventListener('submit', onStudentLogin);
+  const hourLogForm = document.getElementById('hourLogForm');
+  if(hourLogForm) hourLogForm.addEventListener('submit', onHourLog);
+
+  const companySignup = document.getElementById('companySignupForm');
+  if(companySignup) companySignup.addEventListener('submit', onCompanySignup);
+  const companyLogin = document.getElementById('companyLoginForm');
+  if(companyLogin) companyLogin.addEventListener('submit', onCompanyLogin);
+  const rewardForm = document.getElementById('rewardForm');
+  if(rewardForm) rewardForm.addEventListener('submit', onRewardCreate);
+  const sponsorProfileForm = document.getElementById('sponsorProfileForm');
+  if(sponsorProfileForm) sponsorProfileForm.addEventListener('submit', onSponsorProfileSave);
+
+  const adminLogin = document.getElementById('adminLoginForm');
+  if(adminLogin) adminLogin.addEventListener('submit', onAdminLogin);
+
+  document.querySelectorAll('[data-redeem]').forEach(b=>{
+    b.addEventListener('click', ()=>onRedeem(b.dataset.redeem));
+  });
+  document.querySelectorAll('[data-toggle-reward]').forEach(b=>{
+    b.addEventListener('click', ()=>onToggleReward(b.dataset.toggleReward));
+  });
+  document.querySelectorAll('[data-fulfill]').forEach(b=>{
+    b.addEventListener('click', ()=>onFulfill(b.dataset.fulfill));
+  });
+  document.querySelectorAll('[data-approve]').forEach(b=>{
+    b.addEventListener('click', ()=>onVerifyHour(b.dataset.approve,'verified'));
+  });
+  document.querySelectorAll('[data-reject]').forEach(b=>{
+    b.addEventListener('click', ()=>onVerifyHour(b.dataset.reject,'rejected'));
+  });
+}
+
+async function onStudentSignup(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const email = f.get('email').trim();
+  const existing = await findStudentByEmail(email);
+  if(existing){ setMsg('err','An account with this email already exists — try logging in instead.'); STATE.studentTab='login'; renderMain(); return; }
+  const id = genId('stu');
+  const student = {
+    id, name: f.get('name').trim(), school: f.get('school').trim(), grade: f.get('grade').trim(),
+    email, parentEmail: f.get('parentEmail')?.trim()||'', pin: f.get('pin'), createdAt: new Date().toISOString()
+  };
+  const ok = await storeSet('student:'+id, student);
+  if(!ok){ setMsg('err','Something went wrong saving your account. Please try again.'); renderMain(); return; }
+  const agreementId = genId('agr');
+  await storeSet('agreement:'+agreementId, {
+    id: agreementId, type:'volunteer_waiver', studentId: id,
+    studentSignature: f.get('studentSignature').trim(), parentSignature: f.get('parentSignature').trim(),
+    signedAt: new Date().toISOString()
+  });
+  STATE.session = {type:'student', id, name: student.name};
+  setMsg('ok','Account created and agreement signed — welcome to ServeEarn.');
+  renderMain();
+}
+
+async function onStudentLogin(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const email = f.get('email').trim();
+  const pin = f.get('pin');
+  const student = await findStudentByEmail(email);
+  if(!student || student.pin !== pin){ setMsg('err','Email or PIN not recognized.'); renderMain(); return; }
+  STATE.session = {type:'student', id: student.id, name: student.name};
+  STATE.msg=null;
+  renderMain();
+}
+
+async function onHourLog(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const id = genId('log');
+  const entry = {
+    id, studentId: STATE.session.id, studentName: STATE.session.name,
+    org: f.get('org').trim(), date: f.get('date'), hours: Number(f.get('hours')),
+    description: f.get('description').trim(), status: 'pending', createdAt: new Date().toISOString()
+  };
+  const ok = await storeSet('hourlog:'+id, entry);
+  setMsg(ok?'ok':'err', ok? 'Hours submitted for review.' : 'Could not submit — please try again.');
+  renderMain();
+}
+
+async function onRedeem(rewardId){
+  const rewards = await storeGetAll('reward:');
+  const reward = rewards.find(r=>r.id===rewardId);
+  if(!reward) return;
+  const id = genId('red');
+  const redemption = {
+    id, studentId: STATE.session.id, studentName: STATE.session.name,
+    rewardId: reward.id, rewardTitle: reward.title, companyId: reward.companyId,
+    status: 'pending', createdAt: new Date().toISOString()
+  };
+  const ok = await storeSet('redemption:'+id, redemption);
+  setMsg(ok?'ok':'err', ok? 'Redemption requested — the company will follow up.' : 'Could not redeem — try again.');
+  renderMain();
+}
+
+async function onCompanySignup(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const email = f.get('email').trim();
+  const existing = await findCompanyByEmail(email);
+  if(existing){ setMsg('err','An account with this email already exists — try logging in instead.'); STATE.companyTab='login'; renderMain(); return; }
+  const id = genId('co');
+  const company = {
+    id, name: f.get('name').trim(), email, pin: f.get('pin'),
+    website: f.get('website')?.trim()||'', logoUrl: f.get('logoUrl')?.trim()||'',
+    repTitle: f.get('repTitle').trim(), createdAt: new Date().toISOString()
+  };
+  const ok = await storeSet('company:'+id, company);
+  if(!ok){ setMsg('err','Something went wrong saving your account.'); renderMain(); return; }
+  const agreementId = genId('agr');
+  await storeSet('agreement:'+agreementId, {
+    id: agreementId, type:'company_partner_agreement', companyId: id,
+    repSignature: f.get('repSignature').trim(), repTitle: company.repTitle,
+    signedAt: new Date().toISOString()
+  });
+  STATE.session = {type:'company', id, name: company.name};
+  setMsg('ok','Company account created and agreement signed.');
+  renderMain();
+}
+
+async function onCompanyLogin(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const email = f.get('email').trim();
+  const pin = f.get('pin');
+  const company = await findCompanyByEmail(email);
+  if(!company || company.pin !== pin){ setMsg('err','Email or PIN not recognized.'); renderMain(); return; }
+  STATE.session = {type:'company', id: company.id, name: company.name};
+  STATE.msg=null;
+  renderMain();
+}
+
+async function onSponsorProfileSave(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const company = await storeGet('company:'+STATE.session.id);
+  if(!company) return;
+  company.website = f.get('website')?.trim()||'';
+  company.logoUrl = f.get('logoUrl')?.trim()||'';
+  const ok = await storeSet('company:'+STATE.session.id, company);
+  setMsg(ok?'ok':'err', ok? 'Sponsor profile updated.' : 'Could not save — try again.');
+  renderMain();
+}
+
+async function onRewardCreate(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const id = genId('rwd');
+  const reward = {
+    id, companyId: STATE.session.id, companyName: STATE.session.name,
+    title: f.get('title').trim(), description: f.get('description').trim(),
+    hoursRequired: Number(f.get('hoursRequired')), quantity: Number(f.get('quantity')),
+    redeemedCount: 0, active: true, createdAt: new Date().toISOString()
+  };
+  const ok = await storeSet('reward:'+id, reward);
+  setMsg(ok?'ok':'err', ok? 'Reward posted.' : 'Could not post reward — try again.');
+  renderMain();
+}
+
+async function onToggleReward(rewardId){
+  const reward = await storeGet('reward:'+rewardId);
+  if(!reward) return;
+  reward.active = reward.active===false ? true : false;
+  await storeSet('reward:'+rewardId, reward);
+  renderMain();
+}
+
+async function onFulfill(redemptionId){
+  const redemption = await storeGet('redemption:'+redemptionId);
+  if(!redemption) return;
+  redemption.status = 'fulfilled';
+  await storeSet('redemption:'+redemptionId, redemption);
+  const reward = await storeGet('reward:'+redemption.rewardId);
+  if(reward){ reward.redeemedCount = (reward.redeemedCount||0)+1; await storeSet('reward:'+redemption.rewardId, reward); }
+  setMsg('ok','Marked as fulfilled.');
+  renderMain();
+}
+
+async function onVerifyHour(logId, status){
+  const log = await storeGet('hourlog:'+logId);
+  if(!log) return;
+  log.status = status;
+  await storeSet('hourlog:'+logId, log);
+  setMsg('ok', status==='verified' ? 'Hours verified.' : 'Hours rejected.');
+  renderMain();
+}
+
+async function onAdminLogin(e){
+  e.preventDefault();
+  const f = new FormData(e.target);
+  if(f.get('passcode') !== ADMIN_PASSCODE){ setMsg('err','Incorrect passcode.'); renderMain(); return; }
+  STATE.session = {type:'admin', id:'admin', name:'Admin'};
+  STATE.msg=null;
+  renderMain();
+}
+
+render();
+</script>
+</body>
+</html>
