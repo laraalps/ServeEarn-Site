@@ -1,3 +1,4 @@
+javascript
 // ServeEarn backend API
 // Talks to Supabase (Postgres) using the SERVICE ROLE key, which lives only
 // in Netlify's environment variables and is never exposed to the browser.
@@ -46,6 +47,7 @@ exports.handler = async (event) => {
       });
       if (!res.ok) {
         const text = await res.text();
+        console.error('Supabase set failed', res.status, text);
         return { statusCode: 502, body: JSON.stringify({ error: 'Supabase set failed', detail: text }) };
       }
       return { statusCode: 200, body: JSON.stringify({ ok: true }) };
@@ -57,6 +59,7 @@ exports.handler = async (event) => {
       const res = await fetch(url, { headers: headers() });
       if (!res.ok) {
         const text = await res.text();
+        console.error('Supabase get failed', res.status, text);
         return { statusCode: 502, body: JSON.stringify({ error: 'Supabase get failed', detail: text }) };
       }
       const rows = await res.json();
@@ -69,6 +72,7 @@ exports.handler = async (event) => {
       const res = await fetch(url, { headers: headers() });
       if (!res.ok) {
         const text = await res.text();
+        console.error('Supabase list failed', res.status, text);
         return { statusCode: 502, body: JSON.stringify({ error: 'Supabase list failed', detail: text }) };
       }
       const rows = await res.json();
@@ -80,3 +84,4 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: String(e) }) };
   }
 };
+
