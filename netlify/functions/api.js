@@ -1,4 +1,3 @@
-javascript
 // ServeEarn backend API
 // Talks to Supabase (Postgres) using the SERVICE ROLE key, which lives only
 // in Netlify's environment variables and is never exposed to the browser.
