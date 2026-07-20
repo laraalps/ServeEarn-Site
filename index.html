@@ -387,14 +387,19 @@ async function apiCall(body){
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify(body)
   });
-  if(!res.ok) throw new Error('API error '+res.status);
+  if(!res.ok){
+    let detail = '';
+    try{ const j = await res.json(); detail = j.detail || j.error || ''; }catch(e){}
+    throw new Error('API error '+res.status+(detail ? ': '+detail : ''));
+  }
   return res.json();
 }
+let lastStoreError = '';
 async function storeSet(key, value){
   try{
     const res = await apiCall({action:'set', key, value});
     return !!res.ok;
-  }catch(e){ console.error('storage set failed', key, e); return false; }
+ }catch(e){ console.error('storage set failed', key, e); lastStoreError = e.message || String(e); return false; }
 }
 async function storeGet(key){
   try{
@@ -1119,7 +1124,7 @@ async function onStudentSignup(e){
     email, parentEmail: f.get('parentEmail')?.trim()||'', pin: f.get('pin'), createdAt: new Date().toISOString()
   };
   const ok = await storeSet('student:'+id, student);
-  if(!ok){ setMsg('err','Something went wrong saving your account. Please try again.'); renderMain(); return; }
+  if(!ok){ setMsg('err','Something went wrong saving your account: '+(lastStoreError||'unknown error')); renderMain(); return; }
   const agreementId = genId('agr');
   await storeSet('agreement:'+agreementId, {
     id: agreementId, type:'volunteer_waiver', studentId: id,
@@ -1185,7 +1190,7 @@ async function onCompanySignup(e){
     repTitle: f.get('repTitle').trim(), createdAt: new Date().toISOString()
   };
   const ok = await storeSet('company:'+id, company);
-  if(!ok){ setMsg('err','Something went wrong saving your account.'); renderMain(); return; }
+  if(!ok){ setMsg('err','Something went wrong saving your account: '+(lastStoreError||'unknown error')); renderMain(); return; }
   const agreementId = genId('agr');
   await storeSet('agreement:'+agreementId, {
     id: agreementId, type:'company_partner_agreement', companyId: id,
