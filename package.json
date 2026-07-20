@@ -1,0 +1,7 @@
+{
+  "name": "serveearn",
+  "private": true,
+  "dependencies": {
+    "@netlify/database": "^1.1.0"
+  }
+}
